@@ -81,7 +81,6 @@ int CombinedApi::connect(std::string hostname)
 		{
 			// A serial break is sent to reset the device to the default 9600 baud rate
 			static_cast<ComConnection*>(connection_)->sendSerialBreak();
-
 			// Wait for the system to reply RESET
 			errorCode = getErrorCodeFromResponse(readResponse());
 
@@ -91,8 +90,8 @@ int CombinedApi::connect(std::string hostname)
 			// The host can now request the device go to a much faster baud rate...
 			if (errorCode == 0)
 			{
-				std::cout << "Setting Baud921600 for compatibility. Check your API guide to see if this is optimal for your NDI device." << std::endl;
-				errorCode = setCommParams(CommBaudRateEnum::Baud921600);
+				std::cout << "Setting Baud230400 for compatibility. Check your API guide to see if this is optimal for your NDI device." << std::endl;
+				errorCode = setCommParams(CommBaudRateEnum::Baud230400);
 			}
 		}
 	}
@@ -109,7 +108,7 @@ int CombinedApi::connect(std::string hostname)
 int CombinedApi::setCommParams(CommBaudRateEnum::value baudRate, int dataBits, int parity, int stopBits, int enableHandshake) const
 {
 	// Send the COMM command
-	std::string command =  std::string("COMM ").append(intToString(baudRate)).append(intToString(dataBits)).append(intToString(parity))
+	std::string command =  std::string("COMM ").append(intToHexString(baudRate)).append(intToString(dataBits)).append(intToString(parity))
 											   .append(intToString(stopBits)).append(intToString(enableHandshake));
 	sendCommand(command);
 
@@ -129,6 +128,16 @@ std::string CombinedApi::getApiRevision() const
 {
 	// Send the APIREV command
 	std::string command =  std::string("APIREV ");
+	sendCommand(command);
+
+	// Return the raw string so the client can parse the version
+	return readResponse();
+}
+
+std::string CombinedApi::getFirmwareVersion() const
+{
+	// Send the REV command
+	std::string command =  std::string("REV 4 ");
 	sendCommand(command);
 
 	// Return the raw string so the client can parse the version
@@ -709,6 +718,8 @@ int CommBaudRateEnum::toInt(CommBaudRateEnum::value baudEnumValue)
 			return 38400;
 		case Baud19200:
 			return 19200;
+	        case Baud230400:
+			return 230400;
 		case Baud14400:
 			return 14400;
 		case Baud9600: // fall through

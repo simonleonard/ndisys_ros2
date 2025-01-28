@@ -63,7 +63,7 @@ CallbackReturn NdiSensorHardwareInterface::on_init(
     std::cout << "Connected to host: "
                 << ndi_ip_
                 << " With firmware version: "
-                << capi_.getUserParameter("Features.Firmware.Version")
+	        << capi_.getFirmwareVersion()
                 << std::endl;
 
     /* Determine Support for BX2 ........................................ */
@@ -214,15 +214,37 @@ void NdiSensorHardwareInterface::loadTool(const char *toolDefinitionFilePath)
 void NdiSensorHardwareInterface::initializeAndEnableTools()
 {
     // Initialize and enable tools
-    std::vector<PortHandleInfo> portHandles =
-            capi_.portHandleSearchRequest(PortHandleSearchRequestOption::NotInit);
+    std::cout << "NdiSensorHardwareInterface::initializeAndEnableTools" << std::endl;
+    std::vector<PortHandleInfo> portHandles;
+
+    // PHSR 01
+    portHandles = capi_.portHandleSearchRequest(PortHandleSearchRequestOption::PortsToFree);
     for (size_t i = 0; i < portHandles.size(); i++)
     {
-        onErrorPrintDebugMessage("capi_.portHandleInitialize()",
-                                    capi_.portHandleInitialize(portHandles[i].getPortHandle()));
-        onErrorPrintDebugMessage("capi_.portHandleEnable()",
-                                    capi_.portHandleEnable(portHandles[i].getPortHandle()));
+      // PHF
+      onErrorPrintDebugMessage("capi_.portHandleInitialize()",
+			       capi_.portHandleFree(portHandles[i].getPortHandle()));
     }
+
+    // PHSR 02
+    portHandles = capi_.portHandleSearchRequest(PortHandleSearchRequestOption::NotInit);
+    for (size_t i = 0; i < portHandles.size(); i++)
+    {
+      // PINIT
+      onErrorPrintDebugMessage("capi_.portHandleInitialize()",
+			       capi_.portHandleInitialize(portHandles[i].getPortHandle()));
+    }
+
+    // PHSR 03
+    portHandles = capi_.portHandleSearchRequest(PortHandleSearchRequestOption::NotEnabled);
+    for (size_t i = 0; i < portHandles.size(); i++)
+    {
+      // PENA
+      onErrorPrintDebugMessage("capi_.portHandleEnable()",
+			       capi_.portHandleEnable(portHandles[i].getPortHandle()));
+    }
+
+    //
 }
 // ------------------------------------------------------------------------------------------
 std::string NdiSensorHardwareInterface::getToolInfo(std::string toolHandle){

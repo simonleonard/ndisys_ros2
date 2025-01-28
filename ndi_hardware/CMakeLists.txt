@@ -71,12 +71,14 @@ pluginlib_export_plugin_description_file(hardware_interface ndi_hardware_plugin.
 # INSTALL ndicapi_library
 install(
   TARGETS ndicapi_library
-  DESTINATION lib/external
+  LIBRARY
+  DESTINATION lib
 )
 
 # INSTALL
 install(
   TARGETS ${PROJECT_NAME}
+  LIBRARY
   DESTINATION lib
 )
 install(

@@ -81,7 +81,7 @@ namespace TrackingReplyOption
 namespace CommBaudRateEnum
 {
 	//! The enum used by the COMM command to set the baud rate
-	enum value { Baud9600 = 0, Baud14400 = 1, Baud19200 = 2, Baud38400 = 3, Baud57600 = 4, Baud115200 = 5, Baud921600 = 6, Baud1228739 = 7 };
+	enum value { Baud9600 = 0, Baud14400 = 1, Baud19200 = 2, Baud38400 = 3, Baud57600 = 4, Baud115200 = 5, Baud921600 = 6, Baud1228739 = 7, Baud230400 = 10 };
 
 	//! Converts the baud rate enum value to its integer equivalent
 	int toInt(CommBaudRateEnum::value baudEnumValue);
@@ -143,6 +143,12 @@ public:
 	 */
 	std::string getApiRevision() const;
 
+	/**
+	 * @brief Prints firmware version information using REV.
+	 * @returns The result of the REV command.
+	 */
+	std::string getFirmwareVersion() const;
+	
 	/**
 	 * @brief Gets a user parameter using the GET command.
 	 * @param paramName The name of the user parameter.

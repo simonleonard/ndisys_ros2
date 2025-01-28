@@ -247,6 +247,9 @@ bool ComConnection::setSerialPortParams(int baudRate, int dataBits, int parity, 
 	case 38400:
 		baudRateEnum = B38400;
 		break;
+	case 230400:
+		baudRateEnum = B230400;
+		break;
 	case 19200:
 		baudRateEnum = B19200;
 		break;
