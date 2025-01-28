@@ -214,7 +214,6 @@ void NdiSensorHardwareInterface::loadTool(const char *toolDefinitionFilePath)
 void NdiSensorHardwareInterface::initializeAndEnableTools()
 {
     // Initialize and enable tools
-    std::cout << "NdiSensorHardwareInterface::initializeAndEnableTools" << std::endl;
     std::vector<PortHandleInfo> portHandles;
 
     // PHSR 01
