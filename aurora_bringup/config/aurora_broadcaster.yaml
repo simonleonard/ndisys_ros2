@@ -23,7 +23,7 @@ rigid_pose_broadcaster:
       - 02
       - 03
       - 04
-    world_frame: polaris_frame
+    world_frame: reference
 
 
 joint_state_broadcaster:
