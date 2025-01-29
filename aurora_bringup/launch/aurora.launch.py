@@ -50,9 +50,22 @@ def launch_setup(context, *args, **kwargs):
         parameters=[aurora_description, aurora_controller_config],
         output={"screen"},
     )
+
+    aurora_controller = Node(
+           package="controller_manager",
+            executable="spawner",
+            arguments=[
+                "--controller-manager",
+                "/controller_manager",
+                # long timeout because NDI takes a while to configure
+                "--controller-manager-timeout",
+                "30"
+            ] + ["rigid_pose_broadcaster"],
+    )
     
     nodes_to_start = [
         aurora_control_node,
+        aurora_controller
     ]
 
     return nodes_to_start
