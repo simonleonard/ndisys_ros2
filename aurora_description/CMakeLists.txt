@@ -22,7 +22,7 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-install(DIRECTORY config ros2_control srom
+install(DIRECTORY srom urdf
   DESTINATION share/${PROJECT_NAME}
 )
 

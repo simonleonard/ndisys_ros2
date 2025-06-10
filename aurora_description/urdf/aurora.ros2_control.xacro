@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find aurora_description)/urdf/sensor_macro.xacro" />
+
+  <xacro:macro name="ndi_sensor" params="name
+					 com_port:=/dev/ttyUSB0">
+
+    <ros2_control name="${name}" type="sensor">
+
+      <hardware>
+        <plugin>ndi_hardware/NdiSensorHardwareInterface</plugin>
+        <param name="ndi_ip">${com_port}</param>
+      </hardware>
+
+      <!-- repeat this part for multiple trackers -->
+      <xacro:tracker name="zframe"   srom="$(find aurora_description)/srom/ndi_reference.rom" />
+      <xacro:tracker name="handle"   srom="$(find aurora_description)/srom/ndi_handle.rom" />
+      <xacro:tracker name="template" srom="$(find aurora_description)/srom/ndi_template.rom" />
+      <xacro:tracker name="needle"   srom="$(find aurora_description)/srom/ndi_needle.rom" />
+    </ros2_control>
+
+  </xacro:macro>
+
+</robot>

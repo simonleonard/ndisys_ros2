@@ -16,32 +16,78 @@
 # Author: Adnan SAOOD
 
 from launch import LaunchDescription
-from launch.actions import OpaqueFunction
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
+
+from launch_ros.substitutions import FindPackageShare
 from launch_ros.actions import Node
-from ament_index_python.packages import get_package_share_directory
-import xacro
-import os
 
-description_package = "aurora_description"
-description_file = "aurora.config.xacro"
-aurora_runtime_config_package = "aurora_bringup"
-controllers_file = "aurora_broadcaster.yaml"
+def generate_launch_description():
+    declared_arguments = []
+    # General arguments
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "description_package",
+            default_value="aurora_description",
+            description="Description package with robot URDF/XACRO files."
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "runtime_config_package",
+            default_value="aurora_bringup",
+            description="Package with the controller\'s configuration in config folder."
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "description_file",
+            default_value="aurora.urdf.xacro",
+            description="URDF/XACRO description file with the aurora.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "controllers_file",
+            default_value="aurora_broadcaster.yaml",
+            description="YAML file with the controllers configuration.",
+        )
+    )
+    declared_arguments.append(
+        DeclareLaunchArgument(
+            "com_port",
+            default_value='/dev/ttyUSB0',
+            description="COM port"
+        )
+    )
 
+    # General arguments
+    description_package = LaunchConfiguration("description_package")
+    runtime_config_package = LaunchConfiguration("runtime_config_package")
 
-def launch_setup(context, *args, **kwargs):
-    urdf_path = os.path.join(
-        get_package_share_directory('aurora_description'),
-        'config',
-        'aurora.config.xacro')
+    description_file = LaunchConfiguration("description_file")
+    controllers_file = LaunchConfiguration("controllers_file")
+    
+    com_port = LaunchConfiguration("com_port")
+    
+    aurora_description_content = Command(
+        [
+            PathJoinSubstitution([FindExecutable(name="xacro")]),
+            " ",
+            PathJoinSubstitution([FindPackageShare(description_package), "urdf", description_file]),
+            " ",
+            "name:=jhu",
+            " ",
+            "com_port:=",
+            com_port,
+            " ",
+        ]
+    )
+    aurora_description = {"robot_description": aurora_description_content}
 
-    desc_file = xacro.parse(open(urdf_path))
-    xacro.process_doc(desc_file)
-    aurora_description = {"robot_description": desc_file.toxml()}
-
-    aurora_controller_config = os.path.join(
-        get_package_share_directory("aurora_bringup"),
-        "config",
-        "aurora_broadcaster.yaml")
+    aurora_controller_config = PathJoinSubstitution(
+        [FindPackageShare(runtime_config_package), "config", controllers_file]
+    )
 
     aurora_control_node = Node(
         package="controller_manager",
@@ -51,26 +97,24 @@ def launch_setup(context, *args, **kwargs):
         output={"screen"},
     )
 
-    aurora_controller = Node(
-           package="controller_manager",
-            executable="spawner",
-            arguments=[
-                "--controller-manager",
-                "/controller_manager",
-                # long timeout because NDI takes a while to configure
-                "--controller-manager-timeout",
-                "30"
-            ] + ["rigid_pose_broadcaster"],
+    aurora_broadcaster = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "--controller-manager",
+            "/controller_manager",
+            # long timeout because NDI takes a while to configure
+            "--controller-manager-timeout",
+            "30"
+        ] + ["ndi"],
+        remappings=[
+            ("/rigid_poses", "/poses")    
+        ]
     )
     
     nodes_to_start = [
         aurora_control_node,
-        aurora_controller
+        aurora_broadcaster,
     ]
 
-    return nodes_to_start
-
-
-def generate_launch_description():
-
-    return LaunchDescription([OpaqueFunction(function=launch_setup)])
+    return LaunchDescription(declared_arguments + nodes_to_start)
