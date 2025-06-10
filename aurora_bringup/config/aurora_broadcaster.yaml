@@ -15,9 +15,9 @@ ndi:
       - template
       - needle
     sensor_ids:
-      - 04
-      - 03
-      - 02
       - 01
+      - 02
+      - 03
+      - 04
     world_frame: aurora
 
