@@ -77,8 +77,8 @@ RigidPoseBroadcaster::on_configure(const rclcpp_lifecycle::State & /*previous_st
     rigid_pose_publisher_ = get_node()->
     create_publisher<ndi_msgs::msg::RigidArray>("rigid_poses", rclcpp::SystemDefaultsQoS());
     realtime_rigid_pose_publisher_ = std::make_shared<
-    realtime_tools::RealtimePublisher<ndi_msgs::msg::RigidArray>
-    >(rigid_pose_publisher_);
+      realtime_tools::RealtimePublisher<ndi_msgs::msg::RigidArray>
+      >(rigid_pose_publisher_);
 
     this->sensorNames = this->get_node()->get_parameter("sensor_names").as_string_array();
     this->sensorIDs = this->get_node()->get_parameter("sensor_ids").as_integer_array();
@@ -120,7 +120,7 @@ double get_value(
 }
 
 controller_interface::return_type
-RigidPoseBroadcaster::update(const rclcpp::Time & time, const rclcpp::Duration & period)
+RigidPoseBroadcaster::update(const rclcpp::Time & /*time*/, const rclcpp::Duration & /*period*/)
 {
   for (const auto & state_interface : state_interfaces_)
   {
